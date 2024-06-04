@@ -76,8 +76,8 @@ namespace ArzyzWeb.OneMitigationData.Repositories
         {
             List<OrdenesCompra> lista = new List<OrdenesCompra>();
 
-            string whereAnio = string.IsNullOrWhiteSpace(anio) ? "" : $" and YEAR(fecha) in({GetInClause(anio, "pa", false)}) ";
-            string whereEmpresa = string.IsNullOrWhiteSpace(empresa) ? "" : $" and empresa in({GetInClause(empresa, "pe", false)})  ";
+            string whereAnio = string.IsNullOrWhiteSpace(anio) ? "" : $" and YEAR(fecha) in(@anio) ";
+            string whereEmpresa = string.IsNullOrWhiteSpace(empresa) ? "" : $" and empresa in(@empresa)  ";
 
             string whereOrden = string.IsNullOrWhiteSpace(OrdenCompra) ? "" : " and OrdenCompra = @OrdenCompra ";
             string whereCuenta = string.IsNullOrWhiteSpace(CuentaProveedor) ? "" : " and CuentaProveedor = @CuentaProveedor ";
@@ -110,10 +110,10 @@ namespace ArzyzWeb.OneMitigationData.Repositories
             SqlCommand cmd = CreateCommand(query);
 
             if (!string.IsNullOrWhiteSpace(empresa))
-                SetInValuesClause(empresa, "pe", cmd);
+                 cmd.Parameters.AddWithValue("@empresa", empresa);
 
             if (!string.IsNullOrWhiteSpace(anio))
-                SetInValuesClause(anio, "pa", cmd);
+                 cmd.Parameters.AddWithValue("@anio", anio);
 
             if (!string.IsNullOrWhiteSpace(OrdenCompra))
                 cmd.Parameters.AddWithValue("@OrdenCompra", OrdenCompra);
@@ -135,8 +135,8 @@ namespace ArzyzWeb.OneMitigationData.Repositories
             string CuentaProveedor, string nombreProveedor,
             string anio)
         {
-            string whereAnio = string.IsNullOrWhiteSpace(anio) ? "" : $" and YEAR(fecha) in({GetInClause(anio, "pa", false)}) ";
-            string whereEmpresa = string.IsNullOrWhiteSpace(empresa) ? "" : $" and empresa in({GetInClause(empresa, "pe", false)})  ";
+            string whereAnio = string.IsNullOrWhiteSpace(anio) ? "" : $" and YEAR(fecha) in(@anio) ";
+            string whereEmpresa = string.IsNullOrWhiteSpace(empresa) ? "" : $" and empresa in(@empresa)  ";
 
             string whereOrden = string.IsNullOrWhiteSpace(OrdenCompra) ? "" : " and OrdenCompra = @OrdenCompra ";
             string whereCuenta = string.IsNullOrWhiteSpace(CuentaProveedor) ? "" : " and CuentaProveedor = @CuentaProveedor ";
@@ -147,10 +147,10 @@ namespace ArzyzWeb.OneMitigationData.Repositories
             SqlCommand cmd = CreateCommand(query);
 
             if (!string.IsNullOrWhiteSpace(empresa))
-                SetInValuesClause(empresa, "pe", cmd);
+                 cmd.Parameters.AddWithValue("@empresa", empresa);
 
             if (!string.IsNullOrWhiteSpace(anio))
-                SetInValuesClause(anio, "pa", cmd);
+                 cmd.Parameters.AddWithValue("@anio", anio);
 
             if (!string.IsNullOrWhiteSpace(OrdenCompra))
                 cmd.Parameters.AddWithValue("@OrdenCompra", OrdenCompra);
