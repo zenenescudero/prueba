@@ -124,8 +124,8 @@ namespace ArzyzWeb.OneMitigationData.Repositories
         }
         public async Task<int> GetFilterCount(string empresa,string OrdenCompra, string IdRecepcion, string anio)
         {
-            string whereAnio = string.IsNullOrWhiteSpace(anio) ? "" : $" and YEAR(fechaRecepcion) in({GetInClause(anio, "pa", false)}) ";
-            string whereEmpresa = string.IsNullOrWhiteSpace(empresa) ? "" : $" and empresa in({GetInClause(empresa, "pe", false)})  ";
+            string whereAnio = string.IsNullOrWhiteSpace(anio) ? "" : $" and YEAR(fechaRecepcion) in(@anio) ";
+            string whereEmpresa = string.IsNullOrWhiteSpace(empresa) ? "" : $" and empresa in(@empresa)  ";
 
             string whereOrden = string.IsNullOrWhiteSpace(OrdenCompra) ? "" : " and ordenCompra = @OrdenCompra ";
             string whereRecepcion = string.IsNullOrWhiteSpace(IdRecepcion) ? "" : " and IdRecepcion = @IdRecepcion ";
@@ -135,10 +135,10 @@ namespace ArzyzWeb.OneMitigationData.Repositories
             SqlCommand cmd = CreateCommand(query);
 
             if (!string.IsNullOrWhiteSpace(empresa))
-                SetInValuesClause(empresa, "pe", cmd);
+                cmd.Parameters.AddWithValue("@empresa", empresa);
 
             if (!string.IsNullOrWhiteSpace(anio))
-                SetInValuesClause(anio, "pa", cmd);
+                cmd.Parameters.AddWithValue("@anio", anio);
 
             if (!string.IsNullOrWhiteSpace(OrdenCompra))
                 cmd.Parameters.AddWithValue("@OrdenCompra", OrdenCompra);
