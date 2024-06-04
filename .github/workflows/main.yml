@@ -15,7 +15,7 @@ jobs:
         uses: checkmarx/ast-github-action@main #Github Action version
         with:
           project_name: demowebdiscovery
-          cx_tenant: f97fbd1a-3de1-4cab-bc17-27aff3505928
+          cx_tenant: nfr_datastream
           base_uri: https://ast.checkmarx.net
           cx_client_id: ${{ secrets.CX_CLIENT_ID }}
           cx_client_secret: ${{ secrets.CX_CLIENT_SECRET }}
