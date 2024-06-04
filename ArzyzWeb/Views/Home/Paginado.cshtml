@@ -1,0 +1,10 @@
+﻿<ul class="pagination pull-left" v-if="Pag.length > 1">
+    <li class="page-item" style="cursor:pointer" v-on:click="ModificarPaginasRango(-(PageRange - 10))" v-if="PageRange > 10"><a class="page-link">1 ...</a></li>
+    <li class="page-item" style="cursor:pointer" v-on:click="ModificarPaginasRango(-1)" v-if="PageRange > 10"><a class="page-link">Anterior</a></li>
+    <li class="page-item" style="cursor:pointer" v-for="item in Pag" v-bind:class="{ active: (item == CurrentPage) }">
+        <a class="page-link" v-on:click="ConsultarPagina(item)" v-if="item <= (PageRange) && item > (PageRange-10)">{{item}}</a>
+    </li>
+    <li class="page-item" style="cursor:pointer" v-on:click="ModificarPaginasRango(1)" v-if="Pag.length > 10 && PageRange < Pag.length"><a class="page-link">Siguiente</a></li>
+
+    <li class="page-item" style="cursor:pointer" v-on:click="ModificarPaginasRango(Pag.length - PageRange)" v-if="Pag.length > 10 && PageRange < Pag.length"><a class="page-link">... {{ Pag.length }}</a></li>
+</ul>

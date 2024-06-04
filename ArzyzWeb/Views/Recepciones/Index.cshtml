@@ -1,0 +1,334 @@
+﻿
+<div class="content mb-2" id="recepciones_app" style="padding-top:10px">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        Recepciones
+                    </h3>
+                    <div class="card-tools">
+                        <button type="button" v-if="!procesando" class="btn btn-success" v-on:click="DownloadExcel()" style="margin-right: 5px;">
+                            Descargar
+                        </button>
+                    </div>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body table-responsive">
+                    <div class="row" style="padding-bottom:10px">
+                        <div class="col-lg-2" v-show="empresas.length > 0">
+                            <label for="text-input" class="form-control-label">Empresa</label>
+                            <select class="form-control select2" multiple name="empresa" id="empresa" v-model="empresa">
+                                <option v-for="item in empresas" v-bind:value="item">{{ item }}</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2">
+                            <label for="text-input" class=" form-control-label">Orden de Compra</label>
+                            <input type="text" class="form-control" v-model="OrdenCompra">
+                        </div>
+                        <div class="col-lg-2">
+                            <label for="text-input" class=" form-control-label">Id Recepción</label>
+                            <input type="text" class="form-control" v-model="IdRecepcion">
+                        </div>
+                        <div class="col-lg-1" v-show="anios.length > 0">
+                            <label for="text-input" class=" form-control-label">Año</label>
+                            <select class="form-control select2" multiple name="Anio" id="Anio" v-model="Anio">
+                                <option v-for="item in anios" v-bind:value="item">{{ item }}</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-1" style="align-self:self-end">
+                            <button v-if="!procesando" class="btn btn-secondary" v-on:click="Consultar(false,true)">Buscar</button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <span v-if="procesando" class="loader"></span>
+                        </div>
+                    </div>
+
+                    <table class="table table-hover table-sm table-bordered table-condensed">
+                        <thead>
+                            <tr class="table_header_style">
+
+                                <th>Id Recepción</th>
+                                <th>Fecha Recepción</th>
+                                <th>Orden Compra</th>
+                                <th>Artículo</th>
+                                <th>Cantidad</th>
+
+                                <th>Unidad</th>
+                                <th>Nombre Artículo</th>
+                                <th>Configuración</th>
+                                <th>Lote</th>
+                                <th>Empresa</th>                                   
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in recepciones" style="cursor:pointer">
+
+
+                                <td>{{ item.idRecepcion }}</td>
+                                <td>{{ item.fecha_text }}</td>
+                                <td>{{ item.ordenCompra }}</td>
+                                <td>{{ item.articulo }}</td>
+                                <td align="right">{{ FormatCurrency(item.cantidad) }}</td>
+
+
+                                <td>{{ item.unidad }}</td>
+                                <td>{{ item.nombreArticulo }}</td>
+                                <td>{{ item.configuracion }}</td>
+                                <td>{{ item.lote }}</td>
+                                <td>{{ item.empresa }}</td>
+
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="10">
+                                    @await Html.PartialAsync("~/Views/Home/Paginado.cshtml")
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="10">{{ (CurrentPage * PageRows) - (PageRows -1) }} al  {{ (CurrentPage * PageRows) - (PageRows-1) + (CurrentRows - 1) }} de {{ total_rows }} resultados </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    </div>
+
+</div><!-- .content -->
+
+
+<script>
+
+    var app = new Vue({
+        el: '#recepciones_app',
+        data: {
+            recepciones: [],
+            Pag: [],
+            PageRange: 10,
+            CurrentPage: 1,
+            CurrentRows: 0,
+            PageRows: 10,
+            total_rows: 0,
+            procesando: false,
+            OrdenCompra: '',
+            IdRecepcion: '',
+            Anio: '2021',
+            empresa: '',
+            empresas: [],
+            anios: [],
+            afterFilter: {
+                empresa: '',
+                OrdenCompra: '',
+                IdRecepcion: '',
+                Anio: '',            
+                CurrentPage: 1
+            }
+        },
+        computed: {
+        },
+        methods: {
+
+            ConsultarEmpresas: function () {
+
+                let self = this;
+
+                self.procesando = true;
+                axios.get('@Url.Action("GetEmpresas", "Recepciones")', {})
+                    .then(function (response) {
+
+                        self.empresas = response.data;
+
+                        self.procesando = false;
+                        setTimeout(function () {
+                            $('.select2').select2();
+                        }, 300);
+
+                    })
+                    .catch(function (error) {
+
+                        self.procesando = false;
+                        console.log(error);
+                    });
+            },
+            ConsultarAnios: function () {
+
+                let self = this;
+
+                self.procesando = true;
+                axios.get('@Url.Action("GetAnios", "Recepciones")', {})
+                    .then(function (response) {
+
+                        self.anios = response.data;
+
+                        self.procesando = false;
+                        setTimeout(function () {
+                            $('.select2').select2();
+                        }, 300);
+
+                    })
+                    .catch(function (error) {
+
+                        self.procesando = false;
+                        console.log(error);
+                    });
+            },
+            FormatCurrency: function (import_value) {
+                return import_value.toLocaleString('en-US');
+            },
+
+            ModificarPaginasRango: function (agregar) {
+
+                this.PageRange = this.PageRange + agregar;
+
+                if (agregar < 0) {
+                    this.ConsultarPagina(this.PageRange - 9);
+                }
+                else {
+                    this.ConsultarPagina(this.PageRange);
+                }
+            },
+            ConsultarPagina: function (item) {
+                var self = this;
+
+                self.CurrentPage = item;
+                self.Consultar(false, false);
+
+            },
+            Consultar: function (create, paginas) {
+                let self = this;
+
+                self.recepciones = [];
+
+                if (paginas) {
+                    self.CurrentPage = 1;
+                }
+
+                self.empresa = $("#empresa").val().join('|');
+                self.Anio = $("#Anio").val().join('|');
+
+                if (create) {
+                    if (localStorage.getItem("@ConstantsValues.filter_recepciones") != null) {
+
+                        self.afterFilter = JSON.parse(localStorage.getItem("@ConstantsValues.filter_recepciones"));
+
+                        self.empresa = self.afterFilter.empresa;
+                        self.OrdenCompra = self.afterFilter.OrdenCompra;
+                        self.IdRecepcion = self.afterFilter.IdRecepcion;
+                        self.Anio = self.afterFilter.Anio;
+                        self.CurrentPage = self.afterFilter.CurrentPage;
+                    }
+                }
+                                
+                self.afterFilter = {
+                    empresa : self.empresa,
+                    OrdenCompra: self.OrdenCompra,
+                    IdRecepcion: self.IdRecepcion,
+                    Anio: self.Anio,                   
+                    CurrentPage: self.CurrentPage
+                };
+
+                localStorage.setItem("@ConstantsValues.filter_recepciones", JSON.stringify(self.afterFilter));
+                                
+                self.procesando = true;
+
+                axios.get('@Url.Action("GetAll", "Recepciones")?OrdenCompra=' + self.afterFilter.OrdenCompra
+                    + '&empresa=' + self.afterFilter.empresa
+                    + '&IdRecepcion=' + self.afterFilter.IdRecepcion
+                    + '&Anio=' + self.afterFilter.Anio
+                    + '&page=' + self.afterFilter.CurrentPage
+                    + '&pageSize=' + self.PageRows, {})
+                    .then(function (response) {
+
+                        self.recepciones = response.data;
+                        self.CurrentRows = self.recepciones.length;
+                        self.procesando = false;
+
+                        if (paginas) {
+                            self.ConsultarTotal();
+                        }
+
+                    })
+                    .catch(function (error) {
+
+                        swal({ title: error.response.data.mensaje, icon: "error" });
+                        console.log(error);
+                        self.procesando = false;
+                    });
+            },
+            ConsultarTotal: function () {
+
+                let self = this;
+
+                axios.get('@Url.Action("GetAllCount", "Recepciones")?OrdenCompra=' + self.afterFilter.OrdenCompra
+                    + '&empresa=' + self.afterFilter.empresa
+                    + '&IdRecepcion=' + self.afterFilter.IdRecepcion
+                    + '&Anio=' + self.afterFilter.Anio, {})
+                    .then(function (response) {
+
+                        self.total_rows = response.data;
+
+                        if (self.total_rows == 0) {
+                            swal({ title: 'No se encontró información', icon: "warning" });
+                        }
+
+                        self.PageRange = 10;
+
+                        self.Pag = [];
+                        let i = 0;
+                        let hoja = 1
+
+                        while (i < self.total_rows) {
+                            i += self.PageRows;
+                            self.Pag.push(hoja);
+                            hoja++;
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },     
+            DownloadExcel: function () {
+
+                let self = this;
+
+                let nameFile = 'Recepciones.xlsx';
+
+                self.procesando = true;
+
+                axios({
+                    url: '@Url.Action("ExportExcel", "Recepciones")?OrdenCompra=' + self.afterFilter.OrdenCompra
+                        + '&empresa=' + self.afterFilter.empresa
+                        + '&IdRecepcion=' + self.afterFilter.IdRecepcion
+                        + "&Anio=" + self.afterFilter.Anio,
+                    method: 'POST',
+                    data: {},
+                    responseType: 'blob', // important
+                }).then((response) => {
+                    const url = window.URL.createObjectURL(new Blob([response.data]));
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', nameFile); //or any other extension
+                    document.body.appendChild(link);
+                    link.click();
+                    self.procesando = false;
+                });
+            },
+
+        },
+        mounted: function () {
+
+            let self = this;           
+
+            self.ConsultarEmpresas();
+            self.ConsultarAnios();
+
+        }
+    });
+</script>
